@@ -52,7 +52,16 @@ runs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         script: |
-          bundle exec fastlane screengrab
-          if [[ $? -ne 0 ]]; then
-              exit 1
-          fi
+          # adb shell am broadcast -a android.intent.action.CLOSE_SYSTEM_DIALOGS
+          adb shell screencap -p /data/local/tmp/Screenshot1.png; adb pull /data/local/tmp/Screenshot1.png Screenshot1.png
+
+          bundle exec fastlane screengrab || echo "Failed"
+
+          adb shell screencap -p /data/local/tmp/Screenshot2.png; adb pull /data/local/tmp/Screenshot2.png Screenshot2.png
+
+    - name: Upload screenshot
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: device-screenshot
+        path: ./*Screenshot*.png
